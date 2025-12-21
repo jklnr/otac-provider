@@ -7,6 +7,11 @@ A lightweight, single-purpose microservice for one-time access codes (OTACs).
 ## Quick Start
 
 ```bash
+# Generate a key
+openssl rand -base64 32 | tr '+/' '-_' | tr -d '='
+```
+
+```bash
 docker run -p 8080:8080 \
   -e OTACIOUS_JWKS='{"keys":[{"kty":"oct","kid":"key-1","k":"YOUR_BASE64URL_SECRET"}]}' \
   -e OTACIOUS_STORAGE="redis://localhost:6379" \
