@@ -4,13 +4,14 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, encode, Algorithm, Header, Validation};
 use keyv::Keyv;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use uuid::Uuid;
 
 /// JWT claims for OTAC tokens
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OtacClaims {
-    /// Subject - the identifier/payload the consumer provided
-    pub sub: String,
+    /// Payload - arbitrary JSON data stored in the token
+    pub payload: Value,
     /// JWT ID - unique identifier for this token
     pub jti: String,
     /// Issued at (Unix timestamp)
@@ -22,7 +23,7 @@ pub struct OtacClaims {
 /// Stored data for tracking token usage
 #[derive(Debug, Serialize, Deserialize)]
 struct StoredToken {
-    sub: String,
+    payload: Value,
     created_at: i64,
 }
 
@@ -75,16 +76,15 @@ impl OtacService {
 
     /// Create a new OTAC token
     /// 
-    /// The `subject` is an arbitrary string that will be stored in the token
-    /// and returned when the token is consumed. Use it for user IDs, email
-    /// addresses, or any identifier relevant to your use case.
-    pub async fn create(&self, subject: &str) -> Result<String, OtacError> {
+    /// The `payload` is arbitrary JSON that will be stored in the token
+    /// and returned when the token is consumed.
+    pub async fn create(&self, payload: &Value) -> Result<String, OtacError> {
         let jti = Uuid::new_v4().to_string();
         let now = Utc::now();
         let exp = now + Duration::seconds(self.config.token_ttl_seconds as i64);
 
         let claims = OtacClaims {
-            sub: subject.to_string(),
+            payload: payload.clone(),
             jti: jti.clone(),
             iat: now.timestamp(),
             exp: exp.timestamp(),
@@ -104,7 +104,7 @@ impl OtacService {
 
         // Store the token data for single-use enforcement
         let stored = StoredToken {
-            sub: subject.to_string(),
+            payload: payload.clone(),
             created_at: now.timestamp(),
         };
 
@@ -125,9 +125,9 @@ impl OtacService {
 
     /// Consume (validate and delete) an OTAC token
     /// 
-    /// Returns the subject that was stored in the token.
+    /// Returns the payload that was stored in the token.
     /// The token can only be consumed once - subsequent calls will fail.
-    pub async fn consume(&self, token: &str) -> Result<String, OtacError> {
+    pub async fn consume(&self, token: &str) -> Result<Value, OtacError> {
         // First, decode the header to get the key ID
         let header = jsonwebtoken::decode_header(token)
             .map_err(|e| OtacError::InvalidToken(format!("Invalid token header: {}", e)))?;
@@ -173,10 +173,9 @@ impl OtacService {
         tracing::info!(
             jti = %jti,
             kid = %kid,
-            sub = %token_data.claims.sub,
             "Token consumed"
         );
 
-        Ok(token_data.claims.sub)
+        Ok(token_data.claims.payload)
     }
 }

@@ -2,7 +2,7 @@
 
 A lightweight, single-purpose microservice for one-time access codes (OTACs).
 
-**What it does:** Signs a token, stores it, gives it to you. When you come back with it, verifies it, deletes it, gives you back the subject. That's it.
+**What it does:** Signs a token with your arbitrary payload, stores it, gives it to you. When you come back with it, verifies it, deletes it, gives you back the payload. That's it.
 
 ## Quick Start
 
@@ -22,17 +22,29 @@ docker run -p 8080:8080 \
 
 ### POST /create
 
-Create a new one-time access code.
+Create a new one-time access code with arbitrary JSON payload.
 
 ```bash
 curl -X POST http://localhost:8080/create \
   -H "Content-Type: application/json" \
-  -d '{"subject": "user@example.com"}'
+  -d '{"payload": {"username": "jay", "action": "password-reset"}}'
 ```
 
 Response:
 ```json
 {"token": "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtleS0xIn0..."}
+```
+
+The `payload` can be any valid JSON: a string, number, object, array, or boolean.
+
+```bash
+# Simple string payload
+curl -X POST http://localhost:8080/create \
+  -d '{"payload": "user@example.com"}'
+
+# Complex object payload
+curl -X POST http://localhost:8080/create \
+  -d '{"payload": {"userId": 123, "email": "user@example.com", "roles": ["admin"]}}'
 ```
 
 ### POST /consume
@@ -47,7 +59,7 @@ curl -X POST http://localhost:8080/consume \
 
 Response (first call):
 ```json
-{"subject": "user@example.com"}
+{"payload": {"username": "jay", "action": "password-reset"}}
 ```
 
 Response (second call):
@@ -154,14 +166,14 @@ docker run -p 8080:8080 \
 
 ## Use Cases
 
-- **Password reset flows**: Store the user's email/ID in the token, consume it when they set their new password.
-- **Email verification**: Generate a token when user registers, consume it when they click the link.
+- **Password reset flows**: Store `{"username": "jay"}` in the payload, consume it when they set their new password.
+- **Email verification**: Store user info when they register, consume when they click the link.
 - **Magic links**: Passwordless login via email.
 - **Invitation links**: One-time invite URLs that can't be reused.
 
 ## Security Considerations
 
-- **Tokens are JWTs**: They contain the subject in plain text (base64-encoded). Don't put sensitive data in the subject.
+- **Payload is visible in the JWT**: It's base64-encoded, not encrypted. Don't put sensitive data in the payload.
 - **Single-use is enforced server-side**: The JWT signature doesn't prevent replay; the storage backend does.
 - **Use strong secrets**: At least 256 bits (32 bytes) of cryptographically random data.
 - **Use TLS in production**: Both for the API and Redis connections.

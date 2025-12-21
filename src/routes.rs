@@ -1,14 +1,15 @@
 use axum::{extract::State, Json};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::error::OtacError;
 use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct CreateRequest {
-    /// The subject/identifier to store in the token
-    /// This will be returned when the token is consumed
-    pub subject: String,
+    /// Arbitrary JSON payload to store in the token
+    /// This will be returned exactly as-is when the token is consumed
+    pub payload: Value,
 }
 
 #[derive(Serialize)]
@@ -19,11 +20,11 @@ pub struct CreateResponse {
 
 /// POST /create
 /// 
-/// Create a new one-time access code.
+/// Create a new one-time access code with arbitrary payload.
 /// 
 /// Request body:
 /// ```json
-/// { "subject": "user@example.com" }
+/// { "payload": { "username": "jay", "action": "reset" } }
 /// ```
 /// 
 /// Response:
@@ -34,13 +35,11 @@ pub async fn create(
     State(state): State<AppState>,
     Json(body): Json<CreateRequest>,
 ) -> Result<Json<CreateResponse>, OtacError> {
-    let subject = body.subject.trim();
-    
-    if subject.is_empty() {
-        return Err(OtacError::BadRequest("subject is required".into()));
+    if body.payload.is_null() {
+        return Err(OtacError::BadRequest("payload is required".into()));
     }
 
-    let token = state.otac_service.create(subject).await?;
+    let token = state.otac_service.create(&body.payload).await?;
 
     Ok(Json(CreateResponse { token }))
 }
@@ -53,8 +52,8 @@ pub struct ConsumeRequest {
 
 #[derive(Serialize)]
 pub struct ConsumeResponse {
-    /// The subject that was stored in the token
-    pub subject: String,
+    /// The payload that was stored in the token
+    pub payload: Value,
 }
 
 /// POST /consume
@@ -68,7 +67,7 @@ pub struct ConsumeResponse {
 /// 
 /// Response (success):
 /// ```json
-/// { "subject": "user@example.com" }
+/// { "payload": { "username": "jay", "action": "reset" } }
 /// ```
 /// 
 /// Response (already consumed or invalid):
@@ -85,9 +84,9 @@ pub async fn consume(
         return Err(OtacError::BadRequest("token is required".into()));
     }
 
-    let subject = state.otac_service.consume(token).await?;
+    let payload = state.otac_service.consume(token).await?;
 
-    Ok(Json(ConsumeResponse { subject }))
+    Ok(Json(ConsumeResponse { payload }))
 }
 
 #[derive(Serialize)]
@@ -101,4 +100,3 @@ pub struct HealthResponse {
 pub async fn health() -> Json<HealthResponse> {
     Json(HealthResponse { status: "ok" })
 }
-
