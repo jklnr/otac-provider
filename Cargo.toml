@@ -1,0 +1,40 @@
+[package]
+name = "otacious"
+version = "0.1.0"
+edition = "2021"
+description = "A lightweight one-time access code (OTAC) microservice with pluggable storage"
+license = "MIT"
+repository = "https://github.com/yourusername/otacious"
+
+[features]
+default = ["redis"]
+redis = ["keyv/redis"]
+
+[dependencies]
+# Web framework
+axum = "0.7"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Storage
+keyv = { version = "0.3", optional = true }
+
+# JWT/JWK (RFC 7517/7519)
+jsonwebtoken = "9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Utilities
+uuid = { version = "1", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+base64 = "0.22"
+thiserror = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+[profile.release]
+opt-level = "z"     # Optimize for size
+lto = true          # Link-time optimization
+codegen-units = 1   # Single codegen unit for better optimization
+panic = "abort"     # Abort on panic (smaller binary)
+strip = true        # Strip symbols
