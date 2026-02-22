@@ -1,4 +1,4 @@
-# otacious
+# otac-provider
 
 A lightweight, single-purpose microservice for one-time access codes (OTACs).
 
@@ -13,9 +13,9 @@ openssl rand -base64 32 | tr '+/' '-_' | tr -d '='
 
 ```bash
 docker run -p 8080:8080 \
-  -e OTACIOUS_JWKS='{"keys":[{"kty":"oct","kid":"key-1","k":"YOUR_BASE64URL_SECRET"}]}' \
-  -e OTACIOUS_STORAGE="redis://localhost:6379" \
-  otacious
+  -e OTAC_PROVIDER_JWKS='{"keys":[{"kty":"oct","kid":"key-1","k":"YOUR_BASE64URL_SECRET"}]}' \
+  -e OTAC_PROVIDER_STORAGE="redis://localhost:6379" \
+  otac-provider
 ```
 
 ## API
@@ -79,10 +79,10 @@ Health check endpoint.
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `OTACIOUS_JWKS` | ✅ | - | JWK Set JSON containing signing keys |
-| `OTACIOUS_STORAGE` | ❌ | `memory://` | keyv connection string |
-| `OTACIOUS_TTL` | ❌ | `3600` | Token TTL in seconds |
-| `RUST_LOG` | ❌ | `otacious=info` | Log level |
+| `OTAC_PROVIDER_JWKS` | ✅ | - | JWK Set JSON containing signing keys |
+| `OTAC_PROVIDER_STORAGE` | ❌ | `memory://` | keyv connection string |
+| `OTAC_PROVIDER_TTL` | ❌ | `3600` | Token TTL in seconds |
+| `RUST_LOG` | ❌ | `otac-provider=info` | Log level |
 
 ## Generating Keys
 
@@ -159,9 +159,9 @@ OTACious uses [keyv](https://crates.io/crates/keyv) for pluggable storage. Suppo
 
 ```bash
 docker run -p 8080:8080 \
-  -e OTACIOUS_JWKS='{"keys":[{"kty":"oct","kid":"k1","k":"YOUR_SECRET"}]}' \
-  -e OTACIOUS_STORAGE="redis://redis:6379" \
-  otacious
+  -e OTAC_PROVIDER_JWKS='{"keys":[{"kty":"oct","kid":"k1","k":"YOUR_SECRET"}]}' \
+  -e OTAC_PROVIDER_STORAGE="redis://redis:6379" \
+  otac-provider
 ```
 
 ## Use Cases
@@ -187,7 +187,7 @@ cargo build --release
 ### Docker
 
 ```bash
-docker build -t otacious .
+docker build -t otac-provider .
 ```
 
 The resulting image is ~15MB (Alpine-based with statically linked binary).

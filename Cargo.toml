@@ -1,10 +1,10 @@
 [package]
-name = "otacious"
+name = "otac-provider"
 version = "0.1.0"
 edition = "2021"
 description = "A lightweight one-time access code (OTAC) microservice with pluggable storage"
 license = "MIT"
-repository = "https://github.com/yourusername/otacious"
+repository = "https://github.com/jklnr/otac-provider"
 
 [features]
 default = ["redis"]

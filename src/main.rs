@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize tracing
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::try_from_default_env()
-            .unwrap_or_else(|_| "otacious=info,tower_http=info".into()))
+            .unwrap_or_else(|_| "otac-provider=info,tower_http=info".into()))
         .with(tracing_subscriber::fmt::layer().json())
         .init();
 
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!(
         storage = %config.storage_url_display(),
         ttl_seconds = config.token_ttl_seconds,
-        "Starting otacious"
+        "Starting otac-provider"
     );
 
     // Initialize the OTAC service

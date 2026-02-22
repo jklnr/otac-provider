@@ -64,9 +64,9 @@ pub struct Config {
 impl Config {
     /// Load configuration from environment variables
     pub fn from_env() -> Result<Self, OtacError> {
-        // OTACIOUS_JWKS: JSON string containing the JWK Set
-        let jwks_json = std::env::var("OTACIOUS_JWKS")
-            .map_err(|_| OtacError::Config("OTACIOUS_JWKS environment variable is required".into()))?;
+        // OTAC_PROVIDER_JWKS: JSON string containing the JWK Set
+        let jwks_json = std::env::var("OTAC_PROVIDER_JWKS")
+            .map_err(|_| OtacError::Config("OTAC_PROVIDER_JWKS environment variable is required".into()))?;
         
         let jwks: JwkSet = serde_json::from_str(&jwks_json)
             .map_err(|e| OtacError::Config(format!("Invalid JWKS JSON: {}", e)))?;
@@ -85,15 +85,15 @@ impl Config {
             }
         }
 
-        // OTACIOUS_STORAGE: keyv connection string
-        let storage_url = std::env::var("OTACIOUS_STORAGE")
+        // OTAC_PROVIDER_STORAGE: keyv connection string
+        let storage_url = std::env::var("OTAC_PROVIDER_STORAGE")
             .unwrap_or_else(|_| "memory://".to_string());
 
-        // OTACIOUS_TTL: Token TTL in seconds
-        let token_ttl_seconds: u64 = std::env::var("OTACIOUS_TTL")
+        // OTAC_PROVIDER_TTL: Token TTL in seconds
+        let token_ttl_seconds: u64 = std::env::var("OTAC_PROVIDER_TTL")
             .unwrap_or_else(|_| "3600".to_string())
             .parse()
-            .map_err(|_| OtacError::Config("OTACIOUS_TTL must be a valid number".into()))?;
+            .map_err(|_| OtacError::Config("OTAC_PROVIDER_TTL must be a valid number".into()))?;
 
         Ok(Config {
             jwks,
