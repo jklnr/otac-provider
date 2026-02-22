@@ -86,7 +86,7 @@ Health check endpoint.
 
 ## Generating Keys
 
-OTACious uses [JWK (JSON Web Keys)](https://datatracker.ietf.org/doc/html/rfc7517) for signing. Here's how to generate a secure key:
+This project uses [JWK (JSON Web Keys)](https://datatracker.ietf.org/doc/html/rfc7517) for signing. Here's how to generate a secure key:
 
 ### Using OpenSSL (recommended)
 
@@ -147,7 +147,7 @@ To rotate keys without invalidating existing tokens:
 
 ## Storage Backends
 
-OTACious uses [keyv](https://crates.io/crates/keyv) for pluggable storage. Supported backends include:
+This project uses [keyv](https://crates.io/crates/keyv) for pluggable storage. Supported backends include:
 
 * mongodb
 * postgres
