@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Build the application
 # ============================================
-FROM rust:1.85-alpine AS builder
+FROM rust:1.93-alpine AS builder
 
 # Install musl-dev for static linking and other build deps
 RUN apk add --no-cache musl-dev pkgconfig openssl-dev openssl-libs-static
