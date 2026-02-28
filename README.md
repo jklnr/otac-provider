@@ -2,7 +2,7 @@
 
 A lightweight, single-purpose microservice for one-time access codes (OTACs).
 
-**What it does:** Signs a token with your arbitrary payload, stores it, gives it to you. When you come back with it, verifies it, deletes it, gives you back the payload. That's it.
+**What it does:** Signs a token with your arbitrary payload, stores it, gives it to you. When you come back with it, verifies it, deletes it, gives you back the payload.
 
 ## Quick Start
 
