@@ -155,7 +155,7 @@ This project uses [keyv](https://crates.io/crates/keyv) for pluggable storage. S
 * mysql
 * sqlite
 
-### Redis Example
+### Redis Example 
 
 ```bash
 docker run -p 8080:8080 \
