@@ -42,13 +42,15 @@ impl Jwk {
     /// Get the jsonwebtoken EncodingKey
     pub fn encoding_key(&self) -> Result<EncodingKey, OtacError> {
         let bytes = self.decode_key()?;
-        Ok(EncodingKey::from_secret(&bytes))
+        EncodingKey::from_secret(&bytes)
+            .map_err(|e| OtacError::Config(format!("Invalid encoding key: {}", e)))
     }
 
     /// Get the jsonwebtoken DecodingKey
     pub fn decoding_key(&self) -> Result<DecodingKey, OtacError> {
         let bytes = self.decode_key()?;
-        Ok(DecodingKey::from_secret(&bytes))
+        DecodingKey::from_secret(&bytes)
+            .map_err(|e| OtacError::Config(format!("Invalid decoding key: {}", e)))
     }
 }
 
